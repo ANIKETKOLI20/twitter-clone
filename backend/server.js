@@ -1,16 +1,25 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import authRoutes from './routes/auth.routes.js';
-import connectMongoDB from './db/connectMongoDB.js';
 import cookieParser from 'cookie-parser';
+import { v2 as cloudinary } from 'cloudinary'
 
-// Load environment variables from .env file
+import authRoutes from './routes/auth.routes.js';
+import usersRoutes from './routes/user.routes.js';
+
+import connectMongoDB from './db/connectMongoDB.js';
+
+
+
+
 dotenv.config();
 
-// Add logging to verify if dotenv.config() is executed
-console.log("Dotenv configured");
 
-// Log the environment variable to check if it's loaded correctly
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 console.log("MONGO_URI from .env:", process.env.MONGO_URI);
 
 const app = express();
@@ -21,6 +30,7 @@ app.use(express.urlencoded({extended: true})) // to parse form data(urlencoded)
 app.use(cookieParser())
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", usersRoutes);
 
 app.get("/", (req, res) => {
     res.send("Hello World");

@@ -7,9 +7,11 @@ export const signup = async (req, res) => {
     try {
         const { fullName, username, email, password } = req.body;
 
+        // Checking of appropriate parameters
+
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            return res.status(400).json({ msg: "Invalid Email" });
+            return res.status(400).json({ msg: "Invalid Email" });  
         }
 
         const existingUser = await User.findOne({ username });
@@ -30,6 +32,8 @@ export const signup = async (req, res) => {
         const salt = await bcrypt.genSalt(10); // highly recommended
         const hashedPassword = await bcrypt.hash(password, salt);
 
+        // Create and save the new user object in the database
+
         const newUser = new User({
             fullName,
             username,
@@ -39,6 +43,8 @@ export const signup = async (req, res) => {
 
         await newUser.save(); // Save the user first
         generateTokenAndSetCookie(newUser._id, res); // Then set the token
+
+        // Send back the response with user details to the client
 
         res.status(200).json({
             _id: newUser._id,
@@ -93,7 +99,7 @@ export const logout = async (req, res) => {
         res.cookie("jwt", "" , {maxAge:0})
         res.status(200).json({ msg: "Logged out successfully" });
     } catch (error) {
-        console.log("Error in login controller: " + error.message);
+        console.log("Error in logout controller: " + error.message);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
@@ -104,7 +110,7 @@ export const getMe = async (req,res) => {
         const user = await User.findById(req.user._id).select("-password");
         res.status(200).json(user);
     } catch (error) {
-        console.log("Error in login controller: " + error.message);
+        console.log("Error in getMe controller: " + error.message);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }
